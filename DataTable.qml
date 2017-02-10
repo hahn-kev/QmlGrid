@@ -17,28 +17,14 @@ Item {
     //match with the values provided in columns
     property alias rows: rowRepeaterId.model
     
+    //a height of -1 will cause the implicitHeight to be used instead
     property real rowHeight: 48
     property real leftMostColumnMargin: 24
     property real interColumnMargin: 56
     property real rightMostColumnMargin: 24
-    property Component divider: Rectangle {
-        height: 1
-        color: "black"
-        opacity: 0.12
-    }
-    property Component columnHeader: Label {
-        property var column
-        opacity: 0.54
-        text: column.label || column.name
-    }
-    
-    property Component cell: Label {
-        property var column
-        property var row
-        property var value
-        opacity: 0.87
-        text: value
-    }
+    property Component divider: DefaultDivider {}
+    property Component columnHeader: DefaultHeader {}
+    property Component cell: DefaultCell {}
     
     signal columnHeaderClicked(var column)
     signal cellClicked(var column, var row)
@@ -57,6 +43,7 @@ Item {
                 Layout.preferredHeight: rootId.rowHeight
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                implicitHeight: header.implicitHeight
                 Component.onCompleted: {
                     if (rootId.divider) {
                         rootId.divider.createObject(headerColumnId, {
@@ -97,6 +84,7 @@ Item {
                     Layout.fillHeight: true
                     Layout.preferredWidth :cell.implicitWidth + cell.anchors.leftMargin + cell.anchors.rightMargin
                     Layout.preferredHeight: rootId.rowHeight
+                    implicitHeight: cell.implicitHeight
                     Component.onCompleted: {
                         if (rootId.divider) {
                             var dviderProperties = {
