@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>DataTable.qml</file>
+        <file>ExampleGrid1.qml</file>
+        <file>AdvancedExample.qml</file>
     </qresource>
 </RCC>
