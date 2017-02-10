@@ -31,6 +31,7 @@ Item {
     
     GridLayout {
         id: gridId
+        anchors.fill: parent
         columns: columnDefRepeaterId.count
         columnSpacing: 0
         rowSpacing: 0
