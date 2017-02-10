@@ -26,6 +26,19 @@ Item {
         color: "black"
         opacity: 0.12
     }
+    property Component columnHeader: Label {
+        property var column
+        opacity: 0.54
+        text: column.label || column.name
+    }
+    
+    property Component cell: Label {
+        property var column
+        property var row
+        property var value
+        opacity: 0.87
+        text: value
+    }
     
     signal columnHeaderClicked(var column)
     signal cellClicked(var column, var row)
@@ -39,7 +52,8 @@ Item {
             id: columnDefRepeaterId            
             Item {
                 id:headerColumnId
-                Layout.preferredWidth: columnLabelId.implicitWidth + columnLabelId.anchors.leftMargin + columnLabelId.anchors.rightMargin
+                property Item header
+                Layout.preferredWidth: header.implicitWidth + header.anchors.leftMargin + header.anchors.rightMargin
                 Layout.preferredHeight: rootId.rowHeight
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -51,16 +65,17 @@ Item {
                                                         "anchors.right": headerColumnId.right
                                                     });
                     }
+                    var headerProperties = {
+                        "anchors.leftMargin": (index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin),
+                        "anchors.rightMargin": (index == (columnDefRepeaterId.count - 1) ? rootId.rightMostColumnMargin : 0),
+                        "anchors.verticalCenter": headerColumnId.verticalCenter,
+                        "anchors.left": headerColumnId.left,
+                        "column": modelData
+                    };
+                    
+                    headerColumnId.header = rootId.columnHeader.createObject(headerColumnId, headerProperties);
                 }
-                Label {
-                    id: columnLabelId
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.leftMargin: index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin
-                    anchors.rightMargin: index == (columnDefRepeaterId.count - 1) ? rootId.rightMostColumnMargin : 0
-                    opacity: 0.54
-                    text: modelData.label || modelData.name
-                }
+                
                 MouseArea {
                     anchors.fill: parent
                     onClicked: rootId.columnHeaderClicked(modelData)
@@ -77,34 +92,38 @@ Item {
                 Component.onCompleted: model = columnDefRepeaterId.model
                 Item {
                     id: cellId
+                    property Item cell
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.preferredWidth :labelId.implicitWidth + labelId.anchors.leftMargin + labelId.anchors.rightMargin
+                    Layout.preferredWidth :cell.implicitWidth + cell.anchors.leftMargin + cell.anchors.rightMargin
                     Layout.preferredHeight: rootId.rowHeight
                     Component.onCompleted: {
                         if (rootId.divider) {
-                            rootId.divider.createObject(cellId, {
-                                                            "anchors.bottom": cellId.bottom,
-                                                            "anchors.left": cellId.left,
-                                                            "anchors.right": cellId.right
-                                                        });
+                            var dviderProperties = {
+                                "anchors.bottom": cellId.bottom,
+                                "anchors.left": cellId.left,
+                                "anchors.right": cellId.right
+                            };
+                            rootId.divider.createObject(cellId, dviderProperties);
                         }
-                    }
-                    Label {
-                        id: labelId
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.leftMargin: index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin
-                        anchors.rightMargin: index == (cellRepeaterId.count - 1) ? rootId.rightMostColumnMargin : 0
-                        Component.onCompleted: {
-                            if (modelData.type == "number") {
-                                anchors.right = parent.right
-                            } else {
-                                anchors.left = parent.left
-                            }
+                        
+                        var cellProperties = {
+                            "anchors.leftMargin": (index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin),
+                            "anchors.rightMargin": (index == (cellRepeaterId.count - 1) ? rootId.rightMostColumnMargin : 0),
+                            "anchors.verticalCenter": cellId.verticalCenter,
+                            "column": modelData,
+                            "row": row,
+                            "value": row[modelData.name]
+                        };
+                        if (modelData.type == "number") {
+                            cellProperties["anchors.right"] = cellId.right;
+                        } else {
+                            cellProperties["anchors.left"] = cellId.left;
                         }
-                        opacity: 0.87
-                        text: row[modelData.name]
+                        
+                        cellId.cell = rootId.cell.createObject(cellId, cellProperties);
                     }
+
                     MouseArea {
                         anchors.fill: parent
                         onClicked: rootId.cellClicked(modelData, row);
