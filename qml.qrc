@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>DataTable.qml</file>
+    </qresource>
+</RCC>
