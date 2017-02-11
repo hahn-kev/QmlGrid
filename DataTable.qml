@@ -75,15 +75,16 @@ Item {
             id: rowRepeaterId
             Repeater {
                 id: cellRepeaterId
-                property var row: modelData
+                property var row:  (typeof display !== 'undefined') ? display : modelData
                 property int rowIndex: index
                 Component.onCompleted: model = columnDefRepeaterId.model
                 Item {
                     id: cellId
                     property Item cell
+                    property var column:  (typeof modelData !== 'undefined' && modelData != row) ? modelData : display
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.preferredWidth :cell.implicitWidth + cell.anchors.leftMargin + cell.anchors.rightMargin
+                    Layout.preferredWidth : cell.implicitWidth + cell.anchors.leftMargin + cell.anchors.rightMargin
                     Layout.preferredHeight: rootId.rowHeight
                     implicitHeight: cell.implicitHeight
                     Component.onCompleted: {
@@ -100,11 +101,11 @@ Item {
                             "anchors.leftMargin": (index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin),
                             "anchors.rightMargin": (index == (cellRepeaterId.count - 1) ? rootId.rightMostColumnMargin : 0),
                             "anchors.verticalCenter": cellId.verticalCenter,
-                            "column": modelData,
+                            "column": column,
                             "row": row,
-                            "value": row[modelData.name]
+                            "value": row[column.name]
                         };
-                        if (modelData.type == "number") {
+                        if (column.type == "number") {
                             cellProperties["anchors.right"] = cellId.right;
                         } else {
                             cellProperties["anchors.left"] = cellId.left;
@@ -115,7 +116,7 @@ Item {
 
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: rootId.cellClicked(modelData, row);
+                        onClicked: rootId.cellClicked(column, row);
                     }                    
                 }
             }
