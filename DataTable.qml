@@ -11,7 +11,7 @@ Item {
     //name is the field name used to fetch the value from each row
     //type is used to indicate how we align the columns, string or number are the only options
     //label is the column display name, if non is provided it will fallback to name
-    property alias columns: columnDefRepeaterId.model
+    property var columns
     //rows is used to provide the data for the grid
     //the properties of each object in the list should
     //match with the values provided in columns
@@ -36,9 +36,11 @@ Item {
         columnSpacing: 0
         rowSpacing: 0
         Repeater {
-            id: columnDefRepeaterId            
+            id: columnDefRepeaterId
+            model: rootId.columns.length
             Item {
                 id:headerColumnId
+                property var column: rootId.columns[index]
                 property Item header
                 Layout.preferredWidth: header.implicitWidth + header.anchors.leftMargin + header.anchors.rightMargin
                 Layout.preferredHeight: rootId.rowHeight
@@ -58,7 +60,7 @@ Item {
                         "anchors.rightMargin": (index == (columnDefRepeaterId.count - 1) ? rootId.rightMostColumnMargin : 0),
                         "anchors.verticalCenter": headerColumnId.verticalCenter,
                         "anchors.left": headerColumnId.left,
-                        "column": modelData
+                        "column": column
                     };
                     
                     headerColumnId.header = rootId.columnHeader.createObject(headerColumnId, headerProperties);
@@ -66,7 +68,7 @@ Item {
                 
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: rootId.columnHeaderClicked(modelData)
+                    onClicked: rootId.columnHeaderClicked(column)
                 }
             }
         }
@@ -77,11 +79,11 @@ Item {
                 id: cellRepeaterId
                 property var row:  (typeof display !== 'undefined') ? display : modelData
                 property int rowIndex: index
-                Component.onCompleted: model = columnDefRepeaterId.model
+                model: rootId.columns.length
                 Item {
                     id: cellId
                     property Item cell
-                    property var column:  (typeof modelData !== 'undefined' && modelData != row) ? modelData : display
+                    property var column: rootId.columns[index]
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.preferredWidth : cell.implicitWidth + cell.anchors.leftMargin + cell.anchors.rightMargin
@@ -97,13 +99,14 @@ Item {
                             rootId.divider.createObject(cellId, dviderProperties);
                         }
                         
+                        var value = typeof column.format == 'function' ? column.format(row[column.name], row) : row[column.name];
                         var cellProperties = {
                             "anchors.leftMargin": (index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin),
                             "anchors.rightMargin": (index == (cellRepeaterId.count - 1) ? rootId.rightMostColumnMargin : 0),
                             "anchors.verticalCenter": cellId.verticalCenter,
                             "column": column,
                             "row": row,
-                            "value": row[column.name]
+                            "value": value
                         };
                         if (column.type == "number") {
                             cellProperties["anchors.right"] = cellId.right;
@@ -113,7 +116,7 @@ Item {
                         
                         cellId.cell = rootId.cell.createObject(cellId, cellProperties);
                     }
-
+                    
                     MouseArea {
                         anchors.fill: parent
                         onClicked: rootId.cellClicked(column, row);

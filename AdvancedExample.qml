@@ -21,17 +21,24 @@ DataTable {
         sortedColumn = column.name;
         inverted = inverse;
     }
-    
+
     columns: [
         {name:"name", label: "First Name", type:"string"},
         {name:"lastName", label: "Last Name", type:"string"},
         {name:"age", type:"number"},
+        {
+            name:"money",
+            type:"number", 
+            format:function(value) {
+                return "$" + value;
+            }
+        }
     ]
     rows: [
-        {lastName: "Bobberson", name:"bob", age: 4}, 
-        {lastName: "be", name: "jo", age: 6},
-        {lastName: "ington", name: "Alex", age: 50},
-        {lastName: "Butterfly", name: "Rebekah", age: 22},
+        {lastName: "Bobberson", name:"bob", age: 4, money: 500}, 
+        {lastName: "be", name: "jo", age: 6, money: 13400},
+        {lastName: "ington", name: "Alex", age: 50, money: 5},
+        {lastName: "Butterfly", name: "Rebekah", age: 22, money: 235234},
     ]
     onColumnHeaderClicked: {
         print("sorting column: " + column.name);
