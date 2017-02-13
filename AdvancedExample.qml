@@ -23,8 +23,8 @@ DataTable {
     }
 
     columns: [
-        {name:"name", label: "First Name", type:"string"},
-        {name:"lastName", label: "Last Name", type:"string"},
+        {name:"name.first", label: "First Name", type:"string"},
+        {name:"name.last", label: "Last Name", type:"string"},
         {name:"age", type:"number"},
         {
             name:"money",
@@ -34,16 +34,31 @@ DataTable {
             }
         }, 
         {
-            name:"address.city",
+            namespace: "address()",
+            name:"city",
+            label: "City",
+            type:"string"
+        }, 
+        {
+            namespace: "address()",
+            name:"city",
+            label: "City",
+            type:"string"
+        },
+        {
+            name:"address().city",
             label: "City",
             type:"string"
         }
     ]
     rows: [
-        {lastName: "Bobberson", name:"bob", age: 4, money: 500, address: {city:"city ville"}}, 
-        {lastName: "be", name: "jo", age: 6, money: 13400, address: {city:"city ville"}},
-        {lastName: "ington", name: "Alex", age: 50, money: 5, address: {city:"city ville"}},
-        {lastName: "Butterfly", name: "Rebekah", age: 22, money: 235234, address: {city:"city ville"}},
+        {name: {first: "bob", last: "Bobberson"}, age: 4, money: 500, address: function() {
+            print ("invoked");
+            return {city:"city ville"};
+        }}, 
+//        {lastName: "be", name: "jo", age: 6, money: 13400, address: {city:"city ville"}},
+//        {lastName: "ington", name: "Alex", age: 50, money: 5, address: {city:"city ville"}},
+//        {lastName: "Butterfly", name: "Rebekah", age: 22, money: 235234, address: {city:"city ville"}},
     ]
     onColumnHeaderClicked: {
         print("sorting column: " + column.name);

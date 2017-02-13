@@ -15,7 +15,7 @@ Item {
     //rows is used to provide the data for the grid
     //the properties of each object in the list should
     //match with the values provided in columns
-    property alias rows: rowRepeaterId.model
+    property var rows
     
     //a height of -1 will cause the implicitHeight to be used instead
     property real rowHeight: 48
@@ -75,9 +75,11 @@ Item {
         
         Repeater {
             id: rowRepeaterId
+            model: rootId.rows
             Repeater {
                 id: cellRepeaterId
-                property var row:  (typeof display !== 'undefined') ? display : modelData
+                property var row:  (typeof display !== 'undefined') ? display : rootId.rows[index]
+                property var namespaces: ({})
                 property int rowIndex: index
                 model: rootId.columns.length
                 Item {
@@ -98,8 +100,16 @@ Item {
                             };
                             rootId.divider.createObject(cellId, dviderProperties);
                         }
+                        var value;
+                        if (column.namespace) {
+                            if (!cellRepeaterId.namespaces[column.namespace]) {
+                                cellRepeaterId.namespaces[column.namespace] = getValue(column.namespace, row);
+                            }
+                            value = getValue(column.name, cellRepeaterId.namespaces[column.namespace]);
+                        } else {
+                            value = getValue(column.name, row);
+                        }
                         
-                        var value = getValue(column, row);
                         if (column.format) value = column.format(value, row);
                         var cellProperties = {
                             "anchors.leftMargin": (index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin),
@@ -117,22 +127,32 @@ Item {
                         
                         cellId.cell = rootId.cell.createObject(cellId, cellProperties);
                     }
-                    function getValue(column, row) {
-                        
-                        var i = column.name.indexOf(".");
-                        if (i == -1) return row[column.name];
-                        var from = 0;
+                    function getValue(field, row) {
                         var tmp = row;
-                        do {
-                            tmp = tmp[column.name.substring(from, i)];
-                            from = i + 1;
-                            i = column.name.indexOf(".", from);
-                        } while (i !== -1);
-                        tmp = tmp[column.name.substring(from, column.name.length)];
-                        print(tmp);
+                        var from = 0;
+                        for (var i = 0; i < field.length; i++) {
+                            if (field[i] === '.') {
+                                if (field[i - 1] == ')') {
+                                    from = i + 1;
+                                    continue;
+                                }
+
+                                tmp = tmp[field.substring(from, i)];
+                                from = i + 1;
+                            }
+                            if (field[i] === '(') {
+                                tmp = tmp[field.substring(from, i)]();
+                                i++;
+                                from = i + 1;
+                            }
+                        }
+                        if (from < i) {
+                            tmp = tmp[field.substring(from, i)];
+                        }
+
                         return tmp;
                     }
-
+                    
                     MouseArea {
                         anchors.fill: parent
                         onClicked: rootId.cellClicked(column, row);
