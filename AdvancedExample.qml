@@ -32,13 +32,18 @@ DataTable {
             format:function(value) {
                 return "$" + value;
             }
+        }, 
+        {
+            name:"address.city",
+            label: "City",
+            type:"string"
         }
     ]
     rows: [
-        {lastName: "Bobberson", name:"bob", age: 4, money: 500}, 
-        {lastName: "be", name: "jo", age: 6, money: 13400},
-        {lastName: "ington", name: "Alex", age: 50, money: 5},
-        {lastName: "Butterfly", name: "Rebekah", age: 22, money: 235234},
+        {lastName: "Bobberson", name:"bob", age: 4, money: 500, address: {city:"city ville"}}, 
+        {lastName: "be", name: "jo", age: 6, money: 13400, address: {city:"city ville"}},
+        {lastName: "ington", name: "Alex", age: 50, money: 5, address: {city:"city ville"}},
+        {lastName: "Butterfly", name: "Rebekah", age: 22, money: 235234, address: {city:"city ville"}},
     ]
     onColumnHeaderClicked: {
         print("sorting column: " + column.name);

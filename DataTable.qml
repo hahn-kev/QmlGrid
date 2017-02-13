@@ -99,7 +99,8 @@ Item {
                             rootId.divider.createObject(cellId, dviderProperties);
                         }
                         
-                        var value = typeof column.format == 'function' ? column.format(row[column.name], row) : row[column.name];
+                        var value = getValue(column, row);
+                        if (column.format) value = column.format(value, row);
                         var cellProperties = {
                             "anchors.leftMargin": (index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin),
                             "anchors.rightMargin": (index == (cellRepeaterId.count - 1) ? rootId.rightMostColumnMargin : 0),
@@ -116,7 +117,22 @@ Item {
                         
                         cellId.cell = rootId.cell.createObject(cellId, cellProperties);
                     }
-                    
+                    function getValue(column, row) {
+                        
+                        var i = column.name.indexOf(".");
+                        if (i == -1) return row[column.name];
+                        var from = 0;
+                        var tmp = row;
+                        do {
+                            tmp = tmp[column.name.substring(from, i)];
+                            from = i + 1;
+                            i = column.name.indexOf(".", from);
+                        } while (i !== -1);
+                        tmp = tmp[column.name.substring(from, column.name.length)];
+                        print(tmp);
+                        return tmp;
+                    }
+
                     MouseArea {
                         anchors.fill: parent
                         onClicked: rootId.cellClicked(column, row);
