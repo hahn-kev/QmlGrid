@@ -61,8 +61,8 @@ Item {
                                                     });
                     }
                     var headerProperties = {
-                        "anchors.leftMargin": (index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin),
-                        "anchors.rightMargin": Qt.binding(function () {return index == (gridId.columns - 1) ? rootId.rightMostColumnMargin : 0}),
+                        "anchors.leftMargin": (index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin / 2),
+                        "anchors.rightMargin": Qt.binding(function () {return index == (gridId.columns - 1) ? rootId.rightMostColumnMargin : rootId.interColumnMargin / 2}),
                         "anchors.verticalCenter": headerColumnId.verticalCenter,
                         "anchors.left": headerColumnId.left,
                         "column": column
@@ -114,17 +114,17 @@ Item {
                             context = cellRepeaterId.namespaces[column.namespace]
                         }                       
                         if (typeof column.field == "string") {
-                        value = getValue(column.field, context);
+                            value = getValue(column.field, context);
                         } else {
                             value = column.field(context);
                         }
 
-                        if (column.format) value = column.format(value, row);
                         var cellProperties = {
-                            "anchors.leftMargin": (index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin),
-                            "anchors.rightMargin": (index == (gridId.columns - 1) ? rootId.rightMostColumnMargin : 0),
+                            "anchors.leftMargin": (index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin / 2),
+                            "anchors.rightMargin": Qt.binding(function () {return index == (gridId.columns - 1) ? rootId.rightMostColumnMargin : rootId.interColumnMargin / 2}),
                             "anchors.verticalCenter": cellId.verticalCenter,
                             "column": column,
+                            "context": context,
                             "row": row,
                             "value": value
                         };
@@ -169,7 +169,7 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: rootId.cellClicked(column, row);
-                    }                    
+                    }   
                 }
             }
         }
