@@ -2,11 +2,21 @@ import QtQuick 2.0
 
 DataTable {
     id: tableId
+    property alias ageColumn: ageColumnId
     columns: [
-        {name:"name", label: "First Name", type:"string"},
-        {name:"lastName", label: "Last Name", type:"string"},
-        {name:"age", type:"number"},
+        DataColumn {field:"name"; label: "First Name"},
+        DataColumn {field:"lastName"; label: "Last Name"},
+        DataColumn {
+            id: ageColumnId
+            field:"age"
+            type:"number"
+            cell: DefaultCell {
+                color: row.age > 20 ? "blue" : "red"
+            }
+        }
     ]
+    
+    
     rows: [
         {lastName: "Bobberson", name:"bob", age: 4}, 
         {lastName: "be", name: "jo", age: 6},

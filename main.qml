@@ -12,9 +12,13 @@ ApplicationWindow {
             Label {
                 text: "Simple Grid"
             }
-            
+            Switch {
+                id: visibleAgeColumnSwitchId
+                text: "Age column visible"
+            }
+
             ExampleGrid1 {
-                
+                ageColumn.visible: visibleAgeColumnSwitchId.checked
             }
             Label {
                 text: "Sortable Grid, click column headers to sort"

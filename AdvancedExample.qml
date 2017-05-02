@@ -23,31 +23,31 @@ DataTable {
     }
 
     columns: [
-        {name:"name.first", label: "First Name", type:"string"},
-        {name:"name.last", label: "Last Name", type:"string"},
-        {name:"age", type:"number"},
-        {
-            name:"money",
-            type:"number", 
+        DataColumn {field:"name.first"; label: "First Name"},
+        DataColumn {field:function(row){return row.name.last;}; label: "Last Name"},
+        DataColumn {field:"age"; type:"number"},
+        DataColumn {
+            field:"money"
+            type:"number"
             format:function(value) {
                 return "$" + value;
             }
         }, 
-        {
-            namespace: "address()",
-            name:"city",
-            label: "City",
+        DataColumn {
+            namespace: "address()"
+            field:"city"
+            label: "City"
             type:"string"
         }, 
-        {
-            namespace: "address()",
-            name:"city",
-            label: "City",
+        DataColumn {
+            namespace: "address()"
+            field:"city"
+            label: "City"
             type:"string"
         },
-        {
-            name:"address().city",
-            label: "City",
+        DataColumn {
+            field:"address().city"
+            label: "City"
             type:"string"
         }
     ]
@@ -61,17 +61,17 @@ DataTable {
 //        {lastName: "Butterfly", name: "Rebekah", age: 22, money: 235234, address: {city:"city ville"}},
     ]
     onColumnHeaderClicked: {
-        print("sorting column: " + column.name);
+        print("sorting column: " + column.field);
         sortBy(column);
     }
-    onCellClicked: print("clicked cell:" + column.name + "|" + row.name)
+    onCellClicked: print("clicked cell:" + column.field + "|" + row.name)
     columnHeader: Row {
         property var column
         Text {
-            text: sortedColumn !== column.name ? " " : (inverted ? "\u25B2" : "\u25BC")
+            text: sortedColumn !== column.field ? " " : (inverted ? "\u25B2" : "\u25BC")
         }
         Label {
-            text: column.label || column.name
+            text: column.label || column.field
         }
     }
 }

@@ -2,7 +2,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.0
 
 Label {
-    property var column
+    property DataColumn column
     opacity: 0.54
-    text: column.label || column.name
+    text: column.label || column.field
 }

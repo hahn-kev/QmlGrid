@@ -7,5 +7,6 @@
         <file>DefaultDivider.qml</file>
         <file>DefaultHeader.qml</file>
         <file>DefaultCell.qml</file>
+        <file>DataColumn.qml</file>
     </qresource>
 </RCC>

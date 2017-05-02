@@ -11,7 +11,10 @@ Item {
     //name is the field name used to fetch the value from each row
     //type is used to indicate how we align the columns, string or number are the only options
     //label is the column display name, if non is provided it will fallback to name
-    property var columns
+    property list<DataColumn> columns
+    //count modified by events in column header
+    property int visibleColumnCount: columns.length
+
     //rows is used to provide the data for the grid
     //the properties of each object in the list should
     //match with the values provided in columns
@@ -32,7 +35,7 @@ Item {
     GridLayout {
         id: gridId
         anchors.fill: parent
-        columns: columnDefRepeaterId.count
+        columns: rootId.visibleColumnCount
         columnSpacing: 0
         rowSpacing: 0
         Repeater {
@@ -40,8 +43,10 @@ Item {
             model: rootId.columns.length
             Item {
                 id:headerColumnId
-                property var column: rootId.columns[index]
+                property DataColumn column: rootId.columns[index]
                 property Item header
+                visible: column.visible
+                onVisibleChanged: rootId.visibleColumnCount += visible ? 1 : -1
                 Layout.preferredWidth: header.implicitWidth + header.anchors.leftMargin + header.anchors.rightMargin
                 Layout.preferredHeight: rootId.rowHeight
                 Layout.fillWidth: true
@@ -57,12 +62,11 @@ Item {
                     }
                     var headerProperties = {
                         "anchors.leftMargin": (index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin),
-                        "anchors.rightMargin": (index == (columnDefRepeaterId.count - 1) ? rootId.rightMostColumnMargin : 0),
+                        "anchors.rightMargin": Qt.binding(function () {return index == (gridId.columns - 1) ? rootId.rightMostColumnMargin : 0}),
                         "anchors.verticalCenter": headerColumnId.verticalCenter,
                         "anchors.left": headerColumnId.left,
                         "column": column
                     };
-                    
                     headerColumnId.header = rootId.columnHeader.createObject(headerColumnId, headerProperties);
                 }
                 
@@ -85,7 +89,8 @@ Item {
                 Item {
                     id: cellId
                     property Item cell
-                    property var column: rootId.columns[index]
+                    property DataColumn column: rootId.columns[index]
+                    visible: column.visible
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.preferredWidth : cell.implicitWidth + cell.anchors.leftMargin + cell.anchors.rightMargin
@@ -100,20 +105,24 @@ Item {
                             };
                             rootId.divider.createObject(cellId, dviderProperties);
                         }
+                        var context = row;
                         var value;
                         if (column.namespace) {
                             if (!cellRepeaterId.namespaces[column.namespace]) {
                                 cellRepeaterId.namespaces[column.namespace] = getValue(column.namespace, row);
                             }
-                            value = getValue(column.name, cellRepeaterId.namespaces[column.namespace]);
+                            context = cellRepeaterId.namespaces[column.namespace]
+                        }                       
+                        if (typeof column.field == "string") {
+                        value = getValue(column.field, context);
                         } else {
-                            value = getValue(column.name, row);
+                            value = column.field(context);
                         }
-                        
+
                         if (column.format) value = column.format(value, row);
                         var cellProperties = {
                             "anchors.leftMargin": (index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin),
-                            "anchors.rightMargin": (index == (cellRepeaterId.count - 1) ? rootId.rightMostColumnMargin : 0),
+                            "anchors.rightMargin": (index == (gridId.columns - 1) ? rootId.rightMostColumnMargin : 0),
                             "anchors.verticalCenter": cellId.verticalCenter,
                             "column": column,
                             "row": row,
@@ -124,8 +133,12 @@ Item {
                         } else {
                             cellProperties["anchors.left"] = cellId.left;
                         }
-                        
-                        cellId.cell = rootId.cell.createObject(cellId, cellProperties);
+                        var cellComponent = rootId.cell;
+                        if (column.cell) {
+                            cellComponent = column.cell;
+                        }
+
+                        cellId.cell = cellComponent.createObject(cellId, cellProperties);
                     }
                     function getValue(field, row) {
                         var tmp = row;
