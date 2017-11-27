@@ -4,7 +4,7 @@
 Some examples are shown in `ExampleGrid1.qml` and `AdvancedExample.qml`
 
 ## Simple grid
-<img width="277" alt="simplegrid" src="https://cloud.githubusercontent.com/assets/4575355/22850897/ef876344-efc7-11e6-93eb-17f08f77bb43.PNG">
+![image](https://cloud.githubusercontent.com/assets/4575355/22850897/ef876344-efc7-11e6-93eb-17f08f77bb43.PNG)
 ```qml
 DataTable {
     id: tableId
@@ -24,6 +24,8 @@ DataTable {
     }
     onCellClicked: print("clicked cell:" + column.name + "|" + row.name)
 }
+
 ```
+
 ## Advanced grid
-<img width="330" alt="advancedgrid" src="https://cloud.githubusercontent.com/assets/4575355/22850898/ef88fd26-efc7-11e6-9a27-f170dc42a398.PNG">
+![image](https://cloud.githubusercontent.com/assets/4575355/22850898/ef88fd26-efc7-11e6-9a27-f170dc42a398.PNG)
