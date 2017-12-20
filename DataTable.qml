@@ -29,7 +29,7 @@ Item {
     property Component columnHeader: DefaultHeader {}
     property Component cell: DefaultCell {}
     
-    signal columnHeaderClicked(var column)
+    signal columnHeaderClicked(DataColumn column)
     signal cellClicked(var column, var row)
     
     GridLayout {
@@ -109,15 +109,11 @@ Item {
                         var value;
                         if (column.namespace) {
                             if (!cellRepeaterId.namespaces[column.namespace]) {
-                                cellRepeaterId.namespaces[column.namespace] = getValue(column.namespace, row);
+                                cellRepeaterId.namespaces[column.namespace] = column.getValue(column.namespace, row);
                             }
                             context = cellRepeaterId.namespaces[column.namespace]
-                        }                       
-                        if (typeof column.field == "string") {
-                            value = getValue(column.field, context);
-                        } else {
-                            value = column.field(context);
                         }
+                        value = column.getValue(column.field, context);
 
                         var cellProperties = {
                             "anchors.leftMargin": (index == 0 ? rootId.leftMostColumnMargin : rootId.interColumnMargin / 2),
@@ -140,31 +136,7 @@ Item {
 
                         cellId.cell = cellComponent.createObject(cellId, cellProperties);
                     }
-                    function getValue(field, row) {
-                        var tmp = row;
-                        var from = 0;
-                        for (var i = 0; i < field.length; i++) {
-                            if (field[i] === '.') {
-                                if (field[i - 1] == ')') {
-                                    from = i + 1;
-                                    continue;
-                                }
-
-                                tmp = tmp[field.substring(from, i)];
-                                from = i + 1;
-                            }
-                            if (field[i] === '(') {
-                                tmp = tmp[field.substring(from, i)]();
-                                i++;
-                                from = i + 1;
-                            }
-                        }
-                        if (from < i) {
-                            tmp = tmp[field.substring(from, i)];
-                        }
-
-                        return tmp;
-                    }
+                    
                     
                     MouseArea {
                         anchors.fill: parent
