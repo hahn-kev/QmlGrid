@@ -5,4 +5,5 @@ Label {
     property DataColumn column
     opacity: 0.54
     text: column.label || column.field
+    wrapMode: Label.WordWrap
 }

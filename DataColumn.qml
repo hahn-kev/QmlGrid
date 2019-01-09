@@ -8,6 +8,7 @@ QtObject {
     property bool visible: true
     property var format: function (value) { return value; }
     property bool invertColorRating: false
+    property var columnWidth
     property Component cell
     
     function getValue(field, row) {

@@ -7,5 +7,6 @@ Label {
     property var context
     property var value
     opacity: 0.87
-    text: column.format ? column.format(value, row) : value
+    text: column.format ? column.format(value? value : "", row) : value
+    wrapMode: Label.WordWrap
 }
