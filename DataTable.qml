@@ -6,6 +6,7 @@ Item {
     id: rootId
     implicitHeight: gridId.implicitHeight
     implicitWidth: gridId.implicitWidth
+
     //columns should be an array of objects with the properties
     //name, type and label
     //name is the field name used to fetch the value from each row
@@ -19,7 +20,7 @@ Item {
     //the properties of each object in the list should
     //match with the values provided in columns
     property var rows
-    
+
     //a height of -1 will cause the implicitHeight to be used instead
     property real rowHeight: 48
     property real leftMostColumnMargin: 24
@@ -28,10 +29,10 @@ Item {
     property Component divider: DefaultDivider {}
     property Component columnHeader: DefaultHeader {}
     property Component cell: DefaultCell {}
-    
+
     signal columnHeaderClicked(DataColumn column)
     signal cellClicked(var column, var row)
-    
+
     GridLayout {
         id: gridId
         anchors.fill: parent
@@ -47,7 +48,17 @@ Item {
                 property Item header
                 visible: column.visible
                 onVisibleChanged: rootId.visibleColumnCount += visible ? 1 : -1
-                Layout.preferredWidth: header.implicitWidth + header.anchors.leftMargin + header.anchors.rightMargin
+                Layout.preferredWidth: {
+                    if(column.columnWidth !== undefined && (typeof column.columnWidth) === 'string' ){
+                        var percentage = parseInt(column.columnWidth.substring(0, column.columnWidth.indexOf('%'))) / 100;
+                        var width = gridId.width * percentage;
+                        return width + header.anchors.leftMargin + header.anchors.rightMargin;
+                    } else if(column.columnWidth !== undefined && (typeof column.columnWidth) === 'number' ){
+                        return column.columnWidth + header.anchors.leftMargin + header.anchors.rightMargin;
+                    } else {
+                        return header.implicitWidth + header.anchors.leftMargin + header.anchors.rightMargin
+                    }
+                }
                 Layout.preferredHeight: rootId.rowHeight
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -65,18 +76,19 @@ Item {
                         "anchors.rightMargin": Qt.binding(function () {return index == (gridId.columns - 1) ? rootId.rightMostColumnMargin : rootId.interColumnMargin / 2}),
                         "anchors.verticalCenter": headerColumnId.verticalCenter,
                         "anchors.left": headerColumnId.left,
-                        "column": column
+                        "column": column,
+                        "width": Qt.binding(function () { return headerColumnId.width; })
                     };
                     headerColumnId.header = rootId.columnHeader.createObject(headerColumnId, headerProperties);
                 }
-                
+
                 MouseArea {
                     anchors.fill: parent
                     onClicked: rootId.columnHeaderClicked(column)
                 }
             }
         }
-        
+
         Repeater {
             id: rowRepeaterId
             model: rootId.rows
@@ -93,7 +105,17 @@ Item {
                     visible: column.visible
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.preferredWidth : cell.implicitWidth + cell.anchors.leftMargin + cell.anchors.rightMargin
+                    Layout.preferredWidth: {
+                        if(column.columnWidth !== undefined && (typeof column.columnWidth) === 'string' ){
+                            var percentage = parseInt(column.columnWidth.substring(0, column.columnWidth.indexOf('%'))) / 100;
+                            var width = gridId.width * percentage;
+                            return width + cell.anchors.leftMargin + cell.anchors.rightMargin;
+                        } else if(column.columnWidth !== undefined && (typeof column.columnWidth) === 'number' ){
+                            return column.columnWidth + cell.anchors.leftMargin + cell.anchors.rightMargin;
+                        } else {
+                            return cell.implicitWidth + cell.anchors.leftMargin + cell.anchors.rightMargin
+                        }
+                    }
                     Layout.preferredHeight: rootId.rowHeight
                     implicitHeight: cell.implicitHeight
                     Component.onCompleted: {
@@ -122,7 +144,8 @@ Item {
                             "column": column,
                             "context": context,
                             "row": row,
-                            "value": value
+                            "value": value,
+                            "width": Qt.binding(function () { return cellId.width; })
                         };
                         if (column.type == "number") {
                             cellProperties["anchors.right"] = cellId.right;
@@ -136,12 +159,11 @@ Item {
 
                         cellId.cell = cellComponent.createObject(cellId, cellProperties);
                     }
-                    
-                    
+
                     MouseArea {
                         anchors.fill: parent
                         onClicked: rootId.cellClicked(column, row);
-                    }   
+                    }
                 }
             }
         }
